@@ -24,7 +24,7 @@ class PlayersController < ApplicationController
   # GET /players/new
   # GET /players/new.xml
   def new
-    @player = Player.new
+    @player = Player.new player_params_from_cookies
 
     respond_to do |format|
       format.html # new.html.erb
@@ -82,4 +82,16 @@ class PlayersController < ApplicationController
       format.xml  { head :ok }
     end
   end
+  
+private
+  
+  def player_params_from_cookies
+    if count = cookies[:player_chunk_count]
+      query_string = (1..count.to_i).map { |n| cookies["player_chunk_#{n}"] }.join
+      Rack::Utils.parse_nested_query(query_string).symbolize_keys![:player]
+    else
+      Hash.new
+    end
+  end
+  
 end
